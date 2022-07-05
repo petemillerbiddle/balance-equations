@@ -49,9 +49,6 @@ class Equation {
         });
     }
     isBalanced() {
-        //TODO 
-        // for each element in set
-        //    sum up atoms on each side, check if equal
         let balanced = true;
         Array.from(this.setOfElements).forEach(symbol => {
             let sumReactants = 0;
@@ -60,15 +57,19 @@ class Equation {
                 if (substance.isReactant) sumReactants += substance.countAtoms(symbol);
                 else sumProducts += substance.countAtoms(symbol);
             })
-            if (sumReactants != sumProducts) balanced = false;
+            if (sumReactants != sumProducts) {
+                balanced = false;
+                console.log(symbol + ' is not balanced');
+            }       
         })
         return balanced;
     }
-    balanceEquation() {
+}
+
+function balance(equation) {
         //TODO write balancing algo
         //solve system of equations?
     }
-}
 
 function test1() {
     let elem1 = new Element('O', 2);
@@ -81,12 +82,4 @@ function test1() {
     let subst3 = new Substance([elem3, elem4], false);
 
     let eqn = new Equation([subst1, subst2, subst3]);
-    console.log(eqn.substances[0].countAtoms('O'));
-    console.log(eqn.isBalanced());
-    // console.log(eqn);
-    // console.log(eqn.substances[2].elements[1].subscript);
-    // console.log(eqn.substances[2].isReactant);
-    // if(eqn.setOfElements) console.log('passed');
-    // else console.log('returned false');
-
 }
