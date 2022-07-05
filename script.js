@@ -11,9 +11,12 @@ class Substance {
         this.isReactant = isReactant;
         this.coefficient = coefficient;
     }
-    countAtoms() {
-        //TODO take element as arg?
-        //could be in substance multiple times
+    countAtoms(element) { 
+        let sum = 0;
+        Array.from(this.elements).forEach(elem => {
+            if (elem.symbol == element) sum += elem.subscript * this.coefficient;
+        });
+        return sum;
     }
 }
 
@@ -31,7 +34,6 @@ class Equation {
             }
             else substance.elements.forEach(element => prodSet.add(element.symbol));
         });
-           
         if (this.setsAreEqual(rctsSet, prodSet)) return rctsSet;
         else {
             console.log('not same reactancts and products');
@@ -47,17 +49,26 @@ class Equation {
         });
     }
     isBalanced() {
-        //TODO write logic here
-        console.log('return boolean = ifbalanced')
+        //TODO 
+        // for each element in set
+        //    sum up atoms on each side, check if equal
+        let balanced = true;
+        Array.from(this.setOfElements).forEach(symbol => {
+            let sumReactants = 0;
+            let sumProducts = 0;
+            Array.from(this.substances).forEach(substance => {
+                if (substance.isReactant) sumReactants += substance.countAtoms(symbol);
+                else sumProducts += substance.countAtoms(symbol);
+            })
+            if (sumReactants != sumProducts) balanced = false;
+        })
+        return balanced;
     }
     balanceEquation() {
         //TODO write balancing algo
         //solve system of equations?
     }
 }
-
-
-
 
 function test1() {
     let elem1 = new Element('O', 2);
@@ -70,11 +81,12 @@ function test1() {
     let subst3 = new Substance([elem3, elem4], false);
 
     let eqn = new Equation([subst1, subst2, subst3]);
-    
+    console.log(eqn.substances[0].countAtoms('O'));
+    console.log(eqn.isBalanced());
     // console.log(eqn);
     // console.log(eqn.substances[2].elements[1].subscript);
     // console.log(eqn.substances[2].isReactant);
-    if(eqn.setOfElements) console.log('passed');
-    else console.log('returned false');
+    // if(eqn.setOfElements) console.log('passed');
+    // else console.log('returned false');
 
 }
