@@ -64,11 +64,35 @@ class Equation {
 }
 
 function balance(equation) {
-    //TODO write balancing algo
-    //solve system of equations?
+    //TODO finish
+    const elementArray = [...equation.elementSet()]; //set should preserve insertion order
     const equationMatrix = getEquationMatrix(equation);
-    while (equation.isNotBalanced().length) {
+    let notBalanced = equation.isNotBalanced();
+    let nonZeroA;
+    let nonZeroB;
+
+
+    while (notBalanced.length) {
         console.log('equation not balanced');
+        // find unbalanced element with least nonzero factors in matrix and balance it
+
+        simpleElement = notBalanced.sort((symbolA, symbolB) => {
+            nonZeroA = 0;
+            nonZeroB = 0;
+            equationMatrix[elementArray.indexOf(symbolA)].forEach(factor => {
+                if (factor) nonZeroA++;
+            });
+            equationMatrix[elementArray.indexOf(symbolB)].forEach(factor => {
+                if (factor) nonZeroB++;
+            });
+            if (nonZeroA < nonZeroB) return -1;
+            else if (nonZeroA > nonZeroB) return 1; 
+            else return 0;
+        }
+        )[0]; //assign first sorted element
+        console.log(simpleElement);
+
+        notBalanced = equation.isNotBalanced();
         break;
     }
     console.log(equationMatrix);
