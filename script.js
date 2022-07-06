@@ -67,9 +67,28 @@ class Equation {
 }
 
 function balance(equation) {
-        //TODO write balancing algo
-        //solve system of equations?
-    }
+    //TODO write balancing algo
+    //solve system of equations?
+    const equationMatrix = getEquationMatrix(equation);
+    console.log(equationMatrix);
+}
+
+function getEquationMatrix(equation) {
+    const elementArray = [...equation.elementSet()];
+    const equationMatrix = [];
+    let elementFactors = [];
+    elementArray.forEach((symbol, elementIndex) => {
+        equation.substances.forEach((substance, substanceIndex) => { //TODO make products negative?
+            if (equation.substances[substanceIndex].isReactant) {
+                elementFactors.push(equation.substances[substanceIndex].countAtoms(symbol));
+            }
+            else elementFactors.push(-1 * equation.substances[substanceIndex].countAtoms(symbol)); 
+        });
+        equationMatrix.push(elementFactors);
+        elementFactors = [];
+    });
+    return equationMatrix;
+}
 
 function test1() {
     let elem1 = new Element('O', 2);
@@ -82,4 +101,6 @@ function test1() {
     let subst3 = new Substance([elem3, elem4], false);
 
     let eqn = new Equation([subst1, subst2, subst3]);
+
+    balance(eqn);
 }
