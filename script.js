@@ -48,8 +48,8 @@ class Equation {
             return p.has(element);
         });
     }
-    isBalanced() {
-        let balanced = true;
+    isNotBalanced() {
+        let notBalanced = [];
         Array.from(this.setOfElements).forEach(symbol => {
             let sumReactants = 0;
             let sumProducts = 0;
@@ -57,12 +57,9 @@ class Equation {
                 if (substance.isReactant) sumReactants += substance.countAtoms(symbol);
                 else sumProducts += substance.countAtoms(symbol);
             })
-            if (sumReactants != sumProducts) {
-                balanced = false;
-                console.log(symbol + ' is not balanced');
-            }       
+            if (sumReactants != sumProducts) notBalanced.push(symbol);
         })
-        return balanced;
+        return notBalanced;
     }
 }
 
@@ -70,6 +67,10 @@ function balance(equation) {
     //TODO write balancing algo
     //solve system of equations?
     const equationMatrix = getEquationMatrix(equation);
+    while (equation.isNotBalanced().length) {
+        console.log('equation not balanced');
+        break;
+    }
     console.log(equationMatrix);
 }
 
@@ -101,6 +102,5 @@ function test1() {
     let subst3 = new Substance([elem3, elem4], false);
 
     let eqn = new Equation([subst1, subst2, subst3]);
-
     balance(eqn);
 }
