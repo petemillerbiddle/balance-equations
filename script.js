@@ -68,15 +68,20 @@ function balance(equation) {
     const elementArray = [...equation.elementSet()]; //set should preserve insertion order
     const equationMatrix = getEquationMatrix(equation);
     let notBalanced = equation.isNotBalanced();
-    let sumReactants;
-    let sumProducts;
-    let reactantsLow; //boolean
+    let sumReactants = 0;
+    let sumProducts = 0;
+    let reactantsLow = true;
     let inSubst = false;
     let balSubstance;
+    let simpElemSubsc;
+    let simpleElement;
 
-
+    let counter = 0;
+    let coefficients = [];
 
     while (notBalanced.length) {
+        sumReactants = 0;
+        sumProducts = 0;
         simpleElement = getSimpleElement(notBalanced, equationMatrix, elementArray)
         
         // Count reactants and products for simple element
@@ -84,6 +89,7 @@ function balance(equation) {
             if (substance.isReactant) sumReactants += substance.countAtoms(simpleElement);
             else sumProducts += substance.countAtoms(simpleElement);
         });
+
         reactantsLow = sumReactants < sumProducts;
 
         // Find substance to balance
@@ -92,41 +98,41 @@ function balance(equation) {
             subst.elements.forEach(elem => {if (elem.symbol == simpleElement) {inSubst = true}});
             return (inSubst && (subst.isReactant == reactantsLow));
         }).sort((a, b) => {
-            if (a.elements.length < b.elements.length) return -1; // !convert to array if error!
+            if (a.elements.length < b.elements.length) return -1; 
             else if (a.elements.length > b.elements.length) return 1;
             else return 0;
         })[0];        
         
-        console.log('balSubstance:')
-        console.log(balSubstance); //FIX: logs as undefined
-        // TODO finish below
-        // incrSubst.coefficient += Math.abs(sumReactants -sumProducts)/incrSubst.elements[]
-        // new multSubst coefficient += difference in Rct, prod side, divided by subscript
-        //Balance simple element
-        //TODO start with side of rxn w/ fewer factors?
-        //Find number of atoms on each side
-        //multiply up substance with fewest elements on...
-        //  side with fewer atoms to equal larger side
+        balSubstance.elements.forEach(element => {
+            if (element.symbol == simpleElement) simpElemSubsc = element.subscript;
+        });
+        balSubstance.coefficient += Math.abs(sumReactants - sumProducts)/simpElemSubsc;
 
+
+        equation.substances.forEach(substance => coefficients.push(substance.coefficient));
+        console.log(coefficients);
+        coefficients.length = 0;
         notBalanced = equation.isNotBalanced();
-        console.log(notBalanced);
-        break;
+
+        // Safety valve:
+        if (counter > 30) break;
+        counter++;
     }
+
+
     //after balancing, check for whole number coefficients
     //if not whole numbers, find factor to multiply up
-    console.log(equationMatrix);
+    console.log('equation after balancing ')
+    console.log(equation);
 }
 
 function getEquationMatrix(equation) {
     const elementArray = [...equation.elementSet()];
     const equationMatrix = [];
     let elementFactors = [];
-    elementArray.forEach((symbol, elementIndex) => { //fix unused names
-        equation.substances.forEach((substance, substanceIndex) => {
-            if (equation.substances[substanceIndex].isReactant) {
-                elementFactors.push(equation.substances[substanceIndex].countAtoms(symbol));
-            }
-            else elementFactors.push(-1 * equation.substances[substanceIndex].countAtoms(symbol)); 
+    elementArray.forEach((symbol) => { //fix unused names
+        equation.substances.forEach((substance) => {
+            elementFactors.push(substance.countAtoms(symbol));
         });
         equationMatrix.push(elementFactors);
         elementFactors = [];
@@ -135,8 +141,8 @@ function getEquationMatrix(equation) {
 }
 
 function getSimpleElement(notBalanced, equationMatrix, elementArray) {
-    let nonZeroA;
-    let nonZeroB;
+    let nonZeroA = 0;
+    let nonZeroB = 0;
     return notBalanced.sort((symbolA, symbolB) => {
         nonZeroA = 0;
         nonZeroB = 0;
@@ -153,26 +159,41 @@ function getSimpleElement(notBalanced, equationMatrix, elementArray) {
     )[0]; //assign first sorted element as simplest
 }
 
+function resetCoefficients(substances) {
+    substances.forEach(substance => substance.coefficient = 1);
+}
+
 function test1() {
     let O2 = new Element('O', 2);
-    let H2 = new Element('H', 2);
     let O1 = new Element('O');
+
+    let H2 = new Element('H', 2);
     let C3 = new Element('C', 3);
+    let C2 = new Element('C', 2);
+
     let H8 = new Element('H', 8);
+    let H6 = new Element('H', 6);
+
     let C1 = new Element('C', 1);
 
     let oxygenR = new Substance([O2], true);
     let hydrogenR = new Substance([H2], true);
     let waterP = new Substance([H2, O1], false);
     let propaneR = new Substance([C3, H8], true);
+    let ethaneR = new Substance([C2, H6], true);
     let carbonDioxideP = new Substance([C1, O2], false);
 
     let waterSynthesis = new Equation([oxygenR, hydrogenR, waterP]);
     let propaneCombustion = new Equation([propaneR, oxygenR, carbonDioxideP, waterP]);
+    let ethaneCombustion = new Equation([ethaneR, oxygenR, carbonDioxideP, waterP]);
 
 
     balance(waterSynthesis);
+    resetCoefficients(propaneCombustion.substances);
     balance(propaneCombustion);
+
+    resetCoefficients(ethaneCombustion.substances);
+    balance(ethaneCombustion);
 }
 
 // test2 ethane combustion
