@@ -108,10 +108,11 @@ function balance(equation) {
         });
         balSubstance.coefficient += Math.abs(sumReactants - sumProducts)/simpElemSubsc;
 
-
+        // coefficients array for debugging only
         equation.substances.forEach(substance => coefficients.push(substance.coefficient));
         console.log(coefficients);
         coefficients.length = 0;
+
         notBalanced = equation.isNotBalanced();
 
         // Safety valve:
@@ -126,16 +127,19 @@ function balance(equation) {
     console.log(equation);
 }
 
+function makeWholeNumbers(equation) {
+    // TODO write code here
+}
+
 function getEquationMatrix(equation) {
     const elementArray = [...equation.elementSet()];
     const equationMatrix = [];
-    let elementFactors = [];
-    elementArray.forEach((symbol) => { //fix unused names
+
+    elementArray.forEach((symbol, index) => {
+        equationMatrix[index] = [];
         equation.substances.forEach((substance) => {
-            elementFactors.push(substance.countAtoms(symbol));
+            equationMatrix[index].push(substance.countAtoms(symbol));
         });
-        equationMatrix.push(elementFactors);
-        elementFactors = [];
     });
     return equationMatrix;
 }
@@ -189,6 +193,7 @@ function test1() {
 
 
     balance(waterSynthesis);
+
     resetCoefficients(propaneCombustion.substances);
     balance(propaneCombustion);
 
